@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<form action="" method="post" name="filterHosts">
+      {{ form.hidden_tag() }}
+      <table>
+          <tr>
+      <td>
+          | Stage:
+          {{ form.stage }}
+      </td>
+      <td>
+          | Role:
+          {{ form.role }}
+      </td>
+      <td>
+          | Domain:
+          {{ form.domain }}
+      </td>
+      <td>| {{ form.submit }}</td>
+          </tr>
+        </table>
+  </form>
+{{ table }}
+{% endblock %}
