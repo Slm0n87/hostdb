@@ -1,6 +1,6 @@
 from flask.ext.wtf import Form
 from wtforms import StringField, BooleanField, SelectField, SubmitField
-from wtforms.validators import DataRequired, Regexp
+from wtforms.validators import DataRequired, Regexp, Length
 
 class FilterHostForm(Form):
     role = SelectField(u'Role', coerce=int)
@@ -16,3 +16,25 @@ class NewHostForm(Form):
     role = SelectField(u'Role', coerce=int)
     stage = SelectField(u'Stage', coerce=int)
     domain = SelectField(u'Domain', coerce=int)
+    geohost = BooleanField(u'georedundant?')
+
+class RoleForm(Form):
+    name = StringField(u'New Role', validators=[DataRequired(), 
+                                                   Regexp(r'^[A-Za-z0-9-]+$',
+                                                          message='Invalid characters'),
+                                                    Length(max=30)
+                                                   ])
+    submit = SubmitField(u'Add Role')
+class StageForm(Form):
+    name = StringField(u'Stage name', validators=[DataRequired(), 
+                                                   Regexp(r'^[A-Za-z0-9-]+$',
+                                                          message='Invalid characters')
+                                                   ])
+    submit = SubmitField(u'Add Stage')
+
+class DomainForm(Form):
+    name = StringField(u'Domain name', validators=[DataRequired(), 
+                                                   Regexp(r'^[A-Za-z0-9-.]+\.[a-z]{2,6}$',
+                                                          message='not a domain name')
+                                                   ])
+    submit = SubmitField(u'Add Domain')

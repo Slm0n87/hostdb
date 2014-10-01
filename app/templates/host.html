@@ -8,6 +8,10 @@
   {{ wtf.form_field(form.domain) }}
   {{ wtf.form_field(form.role) }}
   {{ wtf.form_field(form.stage) }}
+  {% if title == 'Add Host' %}
+  {{ wtf.form_field(form.geohost) }}
+  <span class="help-block">You may enter the 'a'-side's hostname and check the georedundant checkbox to also create the corresponding 'b' side.</span>
+  {% endif %}
   <input class="btn btn-default" id="submit" name="submit" type="submit" value="{{ title }}">
 </form>
 <hr>
