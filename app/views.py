@@ -16,7 +16,8 @@ def index():
       role = form.role.data
       domain = form.domain.data
       stage = form.stage.data
-      items = Host.query.filter(Host.domain_id==role, Host.role_id==role,
+      items = Host.query.filter(Host.domain_id==domain,
+                                Host.role_id==role,
                                 Host.stage_id==stage).all()
     else:
       flash('Not filtered data.')
