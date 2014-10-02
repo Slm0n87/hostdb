@@ -19,7 +19,7 @@ class NewHostForm(Form):
     geohost = BooleanField(u'georedundant?')
 
 class RoleForm(Form):
-    name = StringField(u'New Role', validators=[DataRequired(), 
+    name = StringField(u'Role name', validators=[DataRequired(), 
                                                    Regexp(r'^[A-Za-z0-9-]+$',
                                                           message='Invalid characters'),
                                                     Length(max=30)
@@ -35,6 +35,7 @@ class StageForm(Form):
 class DomainForm(Form):
     name = StringField(u'Domain name', validators=[DataRequired(), 
                                                    Regexp(r'^[A-Za-z0-9-.]+\.[a-z]{2,6}$',
-                                                          message='not a domain name')
+                                                          message='Not a domain name')
                                                    ])
     submit = SubmitField(u'Add Domain')
+

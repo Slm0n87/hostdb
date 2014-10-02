@@ -2,7 +2,8 @@ from flask import render_template, flash, redirect, url_for
 from app import app, db
 from .models import Host, Role, Stage, Domain
 from .tables import HostTable
-from .forms import FilterHostForm, NewHostForm, RoleForm, DomainForm, StageForm
+from .forms import FilterHostForm, NewHostForm, RoleForm
+from .forms import DomainForm, StageForm
 import re
 
 @app.route('/', methods = ['GET', 'POST'])
