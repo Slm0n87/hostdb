@@ -28,7 +28,7 @@ def index():
       if domain:
           items = items.filter(Host.domain_id==domain)
       items = items.order_by('hostname asc').all()
-      flash('Filtered data.')
+      flash('Filtered data.', 'info')
     else:
       items = Host.query.order_by('hostname asc').all()
     table = HostTable(items, classes=['table', 'table-striped'])
@@ -51,7 +51,7 @@ def new_host():
 
         for hostname in hostnames:
             if Host.query.filter(Host.hostname == hostname).first():
-                flash('Host %s exists already!' % hostname)
+                flash('Host %s exists already!' % hostname, 'warning')
             else:
                 role = form.role.data
                 domain = form.domain.data
@@ -60,7 +60,7 @@ def new_host():
                          stage_id=stage)
                 db.session.add(h)
                 db.session.commit()
-                flash('Added new host: %s' % hostname)
+                flash('Added new host: %s' % hostname, 'success')
         return redirect(url_for('index'))
 
     return render_template("host.html",
@@ -71,7 +71,7 @@ def new_host():
 def edit_host(host_id):
     host = Host.query.get(host_id)
     if not host:
-        flash('Host does not exist')
+        flash('Host does not exist', 'warning')
         return redirect( url_for('index'))
 
     form = NewHostForm()
@@ -86,7 +86,7 @@ def edit_host(host_id):
         host.stage_id = form.stage.data
         db.session.add(host)
         db.session.commit()
-        flash('Changed host: %s' % host.hostname)
+        flash('Changed host: %s' % host.hostname, 'success')
         return redirect(url_for('index'))
     else:
         form.hostname.data = host.hostname
@@ -104,9 +104,9 @@ def delete_host(host_id):
     if h:
         db.session.delete(h)
         db.session.commit()
-        flash('Removed host: %s' % h.hostname)
+        flash('Removed host: %s' % h.hostname, 'success')
     else:
-        flash('Host does not exist')
+        flash('Host does not exist', 'warning')
     return redirect(url_for('index'))
 
 @app.route('/add/role', methods = ['GET', 'POST'])
@@ -115,12 +115,13 @@ def add_role():
 
     if form.validate_on_submit():
         if Role.query.filter(Role.name == form.name.data).first():
-            flash('Role %s exists already!' % form.name.data)
+            flash('Role %s exists already!' % form.name.data, 'warning')
+            return redirect(url_for('add_role'))
         else:
             r = Role(name=form.name.data)
             db.session.add(r)
             db.session.commit()
-            flash('Added new role: %s' % form.name.data)
+            flash('Added new role: %s' % form.name.data, 'success')
         return redirect(url_for('index'))
 
     return render_template("admin.html",
@@ -129,16 +130,17 @@ def add_role():
 
 @app.route('/add/stage', methods = ['GET', 'POST'])
 def add_stage():
-    formM= StageForm()
+    form= StageForm()
 
     if form.validate_on_submit():
         if Stage.query.filter(Stage.name == form.name.data).first():
-            flash('Stage %s exists already!' % form.name.data)
+            flash('Stage %s exists already!' % form.name.data, 'warning')
+            return redirect(url_for('add_stage'))
         else:
             r = Stage(name=form.name.data)
             db.session.add(r)
             db.session.commit()
-            flash('Added new stage: %s' % form.name.data)
+            flash('Added new stage: %s' % form.name.data, 'success')
         return redirect(url_for('index'))
 
     return render_template("admin.html",
@@ -151,12 +153,13 @@ def add_domain():
 
     if form.validate_on_submit():
         if Domain.query.filter(Domain.name == form.name.data).first():
-            flash('Domain %s exists already!' % form.name.data)
+            flash('Domain %s exists already!' % form.name.data, 'warning')
+            return redirect(url_for('add_domain'))
         else:
             r = Domain(name=form.name.data)
             db.session.add(r)
             db.session.commit()
-            flash('Added new domain: %s' % form.name.data)
+            flash('Added new domain: %s' % form.name.data, 'success')
         return redirect(url_for('index'))
 
     return render_template("admin.html",
