@@ -20,9 +20,14 @@ def index():
       role = form.role.data
       domain = form.domain.data
       stage = form.stage.data
-      items = Host.query.filter(Host.domain_id==domain,
-                                Host.role_id==role,
-                                Host.stage_id==stage).order_by('hostname asc').all()
+      items = Host.query
+      if role:
+          items = items.filter(Host.role_id==role)
+      if stage:
+          items = items.filter(Host.stage_id==stage)
+      if domain:
+          items = items.filter(Host.domain_id==domain)
+      items = items.order_by('hostname asc').all()
       flash('Filtered data.')
     else:
       items = Host.query.order_by('hostname asc').all()
@@ -124,7 +129,7 @@ def add_role():
 
 @app.route('/add/stage', methods = ['GET', 'POST'])
 def add_stage():
-    form = StageForm()
+    formM= StageForm()
 
     if form.validate_on_submit():
         if Stage.query.filter(Stage.name == form.name.data).first():
