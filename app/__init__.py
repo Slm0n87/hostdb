@@ -14,4 +14,4 @@ manager = flask.ext.restless.APIManager(app, flask_sqlalchemy_db=db)
 from app import views, models
 
 from models import Host
-manager.create_api(Host, methods=['GET'])
+manager.create_api(Host, methods=['GET'], results_per_page=None)
