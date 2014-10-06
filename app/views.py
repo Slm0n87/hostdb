@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, url_for
+from flask import render_template, flash, redirect, url_for, session, g, request
 from app import app, db
 from .models import Host, Role, Stage, Domain
 from .tables import HostTable
@@ -17,21 +17,48 @@ def index():
     form.domain.choices = [(d.id, d.name) for d in Domain.query.all()]
     form.domain.choices.insert(0, (0, 'all'))
 
+    stage = session.get('stage', None)
+    role = session.get('role', None)
+    domain = session.get('domain', None)
+
+    # Form was submitted ...
     if form.validate_on_submit():
-      role = form.role.data
-      domain = form.domain.data
-      stage = form.stage.data
-      items = Host.query
-      if role:
-          items = items.filter(Host.role_id==role)
-      if stage:
-          items = items.filter(Host.stage_id==stage)
-      if domain:
-          items = items.filter(Host.domain_id==domain)
-      items = items.order_by('hostname asc').all()
-      flash('Filtered data.', 'info')
+        # 'Filter' clicked
+        if request.form['submit'] == 'Filter':
+            role = form.role.data
+            domain = form.domain.data
+            stage = form.stage.data
+        # 'All' clicked - reset all fields everywhere
+        else:
+            role = None
+            session['role'] = None
+            domain = None
+            session['domain'] = None
+            stage = None
+            session['stage'] = None
+            form.role.data = None
+            form.stage.data = None
+            form.domain.data = None
+    # set filter dropdowns to the values of the session
     else:
-      items = Host.query.order_by('hostname asc').all()
+        form.role.data = session['role']
+        form.stage.data = session['stage']
+        form.domain.data = session['domain']
+
+
+    items = Host.query
+    if role:
+        items = items.filter(Host.role_id==role)
+        session['role'] = role
+    if stage:
+        items = items.filter(Host.stage_id==stage)
+        session['stage'] = stage
+    if domain:
+        items = items.filter(Host.domain_id==domain)
+        session['domain'] = domain
+    items = items.order_by('hostname asc').all()
+    if session['role'] or session['stage'] or session['domain']:
+        flash('Filtered data.', 'info')
     table = HostTable(items, classes=['table', 'table-striped'])
     return render_template("index.html",
                            form = form,
