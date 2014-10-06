@@ -49,3 +49,10 @@
   </div>
 {% endblock %}
 
+{% block scripts %}
+{{ super() }}
+<script type='text/javascript'>
+    // focus the form
+    $("input:text:visible:first").focus();
+</script>
+{% endblock %}
