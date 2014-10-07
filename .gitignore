@@ -3,3 +3,5 @@
 *.db
 *.log
 *.sw?
+app.db.bak
+*.sqlite

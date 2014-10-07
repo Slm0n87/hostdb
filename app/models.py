@@ -1,13 +1,24 @@
-from app import db
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
+from . import db, login_manager
 
 class Host(db.Model):
+    __tablename__ = "host"
     id = db.Column(db.Integer, primary_key=True)
     hostname = db.Column(db.String(64), index=True, unique=True)
     domain_id = db.Column(db.Integer, db.ForeignKey('domain.id'))
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
     stage_id = db.Column(db.Integer, db.ForeignKey('stage.id'))
+    last_modified = db.Column(db.DateTime)
+    modified_by = db.Column(db.Integer, db.ForeignKey('users.user_id'))
+
+    def __init__(self, hostname, stage, domain, role, user):
+        self.hostname = hostname
+        self.domain_id = domain
+        self.stage_id = stage
+        self.role_id = role
+        self.modified_by = user
+        self.last_modified = datetime.utcnow()
 
     def __repr__(self):
         return '<Host %r>' % (self.hostname)
@@ -82,3 +93,9 @@ class User(db.Model):
  
     def __repr__(self):
         return '<User %r>' % (self.username)
+
+
+@login_manager.user_loader
+def load_user(id):
+        return User.query.get(int(id))
+

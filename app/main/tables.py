@@ -6,5 +6,5 @@ class HostTable(Table):
         domain = Col('Domain')
         stage = Col('Stage')
         role = Col('Role')
-        view = LinkCol('Edit', 'edit_host', url_kwargs=dict(host_id='id'))
-        delete = LinkCol('Delete', 'delete_host', url_kwargs=dict(host_id='id'))
+        view = LinkCol('Edit', '.edit_host', url_kwargs=dict(host_id='id'))
+        delete = LinkCol('Delete', '.delete_host', url_kwargs=dict(host_id='id'))

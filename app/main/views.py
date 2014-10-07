@@ -1,17 +1,18 @@
-from flask import render_template, flash, redirect, url_for, session, g, request
+from flask import render_template, flash, redirect, url_for, session, g, request, current_app
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from werkzeug.security import check_password_hash
-from app import app, db
-from .models import Host, Role, Stage, Domain, User
+from .. import db
+from . import main
+from ..models import Host, Role, Stage, Domain, User
 from .tables import HostTable
 from .forms import FilterHostForm, NewHostForm, RoleForm
 from .forms import DomainForm, StageForm
-from config import HOSTS_PER_PAGE
 import re
+from datetime import datetime
 
-@app.route('/', methods = ['GET', 'POST'])
-@app.route('/index', methods = ['GET', 'POST'])
-@app.route('/index/<int:page>', methods=['GET', 'POST'])
+@main.route('/', methods = ['GET', 'POST'])
+@main.route('/index', methods = ['GET', 'POST'])
+@main.route('/index/<int:page>', methods=['GET', 'POST'])
 def index(page=1):
     form = FilterHostForm()
     form.role.choices = [(h.id, h.name) for h in Role.query.all()]
@@ -60,7 +61,8 @@ def index(page=1):
     if domain:
         items = items.filter(Host.domain_id==domain)
         session['domain'] = domain
-    items = items.order_by('hostname asc').paginate(page, HOSTS_PER_PAGE, False)
+    items = items.order_by('hostname asc').paginate(page,
+                                                    current_app.config['HOSTS_PER_PAGE'], False)
     if session['role'] or session['stage'] or session['domain']:
         flash('Filtered data.', 'info')
     table = HostTable(items.items, classes=['table', 'table-striped'])
@@ -70,7 +72,7 @@ def index(page=1):
                            items=items,
                            title='Home')
 
-@app.route('/host/new', methods = ['GET', 'POST'])
+@main.route('/host/new', methods = ['GET', 'POST'])
 @login_required
 def new_host():
     form = NewHostForm()
@@ -90,24 +92,27 @@ def new_host():
                 role = form.role.data
                 domain = form.domain.data
                 stage = form.stage.data
-                h = Host(hostname=hostname, role_id=role, domain_id=domain,
-                         stage_id=stage)
+                h = Host(hostname=hostname,
+                         role=role,
+                         domain=domain,
+                         stage=stage,
+                         user = g.user.id)
                 db.session.add(h)
                 db.session.commit()
                 flash('Added new host: %s' % hostname, 'success')
-        return redirect(url_for('index'))
+        return redirect(url_for('.index'))
 
     return render_template("host.html",
                        form = form,
                        title='Add Host')
 
-@app.route('/host/edit/<host_id>', methods = ['GET', 'POST'])
+@main.route('/host/edit/<host_id>', methods = ['GET', 'POST'])
 @login_required
 def edit_host(host_id):
     host = Host.query.get(host_id)
     if not host:
         flash('Host does not exist', 'warning')
-        return redirect( url_for('index'))
+        return redirect( url_for('.index'))
 
     form = NewHostForm()
     form.role.choices = [(h.id, h.name) for h in Role.query.all()]
@@ -119,10 +124,12 @@ def edit_host(host_id):
         host.role_id = form.role.data
         host.domain_id = form.domain.data
         host.stage_id = form.stage.data
+        host.modified_by = g.user.id
+        host.last_modified = datetime.utcnow()
         db.session.add(host)
         db.session.commit()
         flash('Changed host: %s' % host.hostname, 'success')
-        return redirect(url_for('index'))
+        return redirect(url_for('.index'))
     else:
         form.hostname.data = host.hostname
         form.role.data = host.role_id
@@ -133,7 +140,7 @@ def edit_host(host_id):
                        form = form,
                        title='Change Host')
 
-@app.route('/host/del/<host_id>', methods = ['GET', 'POST'])
+@main.route('/host/del/<host_id>', methods = ['GET', 'POST'])
 @login_required
 def delete_host(host_id):
     h = Host.query.get(host_id)
@@ -143,9 +150,9 @@ def delete_host(host_id):
         flash('Removed host: %s' % h.hostname, 'success')
     else:
         flash('Host does not exist', 'warning')
-    return redirect(url_for('index'))
+    return redirect(url_for('.index'))
 
-@app.route('/add/role', methods = ['GET', 'POST'])
+@main.route('/add/role', methods = ['GET', 'POST'])
 @login_required
 def add_role():
     form = RoleForm()
@@ -153,19 +160,19 @@ def add_role():
     if form.validate_on_submit():
         if Role.query.filter(Role.name == form.name.data).first():
             flash('Role %s exists already!' % form.name.data, 'warning')
-            return redirect(url_for('add_role'))
+            return redirect(url_for('.add_role'))
         else:
             r = Role(name=form.name.data)
             db.session.add(r)
             db.session.commit()
             flash('Added new role: %s' % form.name.data, 'success')
-        return redirect(url_for('index'))
+        return redirect(url_for('.index'))
 
     return render_template("admin.html",
                        form = form,
                        title='Add role')
 
-@app.route('/add/stage', methods = ['GET', 'POST'])
+@main.route('/add/stage', methods = ['GET', 'POST'])
 @login_required
 def add_stage():
     form= StageForm()
@@ -173,19 +180,19 @@ def add_stage():
     if form.validate_on_submit():
         if Stage.query.filter(Stage.name == form.name.data).first():
             flash('Stage %s exists already!' % form.name.data, 'warning')
-            return redirect(url_for('add_stage'))
+            return redirect(url_for('.add_stage'))
         else:
             r = Stage(name=form.name.data)
             db.session.add(r)
             db.session.commit()
             flash('Added new stage: %s' % form.name.data, 'success')
-        return redirect(url_for('index'))
+        return redirect(url_for('.index'))
 
     return render_template("admin.html",
                        form = form,
                        title='Add stage')
 
-@app.route('/add/domain', methods = ['GET', 'POST'])
+@main.route('/add/domain', methods = ['GET', 'POST'])
 @login_required
 def add_domain():
     form = DomainForm()
@@ -193,19 +200,19 @@ def add_domain():
     if form.validate_on_submit():
         if Domain.query.filter(Domain.name == form.name.data).first():
             flash('Domain %s exists already!' % form.name.data, 'warning')
-            return redirect(url_for('add_domain'))
+            return redirect(url_for('.add_domain'))
         else:
             r = Domain(name=form.name.data)
             db.session.add(r)
             db.session.commit()
             flash('Added new domain: %s' % form.name.data, 'success')
-        return redirect(url_for('index'))
+        return redirect(url_for('.index'))
 
     return render_template("admin.html",
                        form = form,
                        title='Add domain')
 
-@app.route('/register' , methods=['GET','POST'])
+@main.route('/register' , methods=['GET','POST'])
 def register():
     if request.method == 'GET':
         return render_template('register.html', title='Register')
@@ -213,9 +220,9 @@ def register():
     db.session.add(user)
     db.session.commit()
     flash('User successfully registered', 'info')
-    return redirect(url_for('login'))
+    return redirect(url_for('.login'))
 
-@app.route('/login',methods=['GET','POST'])
+@main.route('/login',methods=['GET','POST'])
 def login():
     if request.method == 'GET':
         return render_template('login.html', title='Login')
@@ -224,12 +231,18 @@ def login():
     registered_user = User.query.filter_by(username=username).first()
     if registered_user is None or check_password_hash(registered_user.password, password) is False:
         flash('Username or Password is invalid' , 'warning')
-        return redirect(url_for('login'))
+        return redirect(url_for('.login'))
     login_user(registered_user)
     flash('Logged in successfully as %s' % username, 'info')
-    return redirect(request.args.get('next') or url_for('index'))
+    return redirect(request.args.get('next') or url_for('.index'))
 
-@app.route('/logout')
+@main.route('/logout')
 def logout():
     logout_user()
-    return redirect(url_for('index')) 
+    return redirect(url_for('.index')) 
+
+@main.before_request
+def before_request():
+        g.user = current_user
+
+
