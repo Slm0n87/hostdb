@@ -5,8 +5,13 @@ from flask.ext.migrate import Migrate, MigrateCommand
 
 app = create_app('default')
 manager = Manager(app)
+
 migrate = Migrate(app, db)
 manager.add_command('db', MigrateCommand)
+
+import flask.ext.restless
+restless = flask.ext.restless.APIManager(app, flask_sqlalchemy_db=db)
+restless.create_api(Host, methods=['GET'])
 
 def make_shell_context():
     return dict(app=app, db=db, User=User, Role=Role, Stage=Stage, Host=Host,
