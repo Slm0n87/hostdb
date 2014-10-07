@@ -24,8 +24,24 @@
     <div class="collapse navbar-collapse">
       <ul class="nav navbar-nav">
           <li {% if title.startswith('Home') %} class="active"{% endif %}><a href="{{ url_for('index')    }}">hosts</a></li>
-          <li {% if title.startswith('Add Host') %} class="active"{% endif %}><a href="{{ url_for('new_host') }}">add host</a></li>
+          {% if g.user.is_authenticated()%}
+            <li {% if title.startswith('Add Host') %} class="active"{% endif %}><a href="{{ url_for('new_host') }}">add host</a></li>
+          {% endif %}
       </ul>
+      <ul class="nav navbar-nav navbar-right">
+          <li class="dropdown{% if title|replace('Add ', '') in ['role', 'domain', 'stage'] %} active{% endif %}">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span><span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+  {% if g.user.is_authenticated()%}
+              <li><a href="{{ url_for('logout') }}">Logout</a></li>
+  {% else %}
+              <li><a href="{{ url_for('register') }}">Register</a></li>
+              <li><a href="{{ url_for('login') }}">Login</a></li>
+  {% endif %}
+          </ul>
+        </li>
+      </ul>
+  {% if g.user.is_authenticated()%}
       <ul class="nav navbar-nav navbar-right">
           <li class="dropdown{% if title|replace('Add ', '') in ['role', 'domain', 'stage'] %} active{% endif %}">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin<span class="caret"></span></a>
@@ -36,6 +52,7 @@
           </ul>
         </li>
       </ul>
+  {% endif %}
     </div><!-- /.navbar-collapse -->
   </div>
 </div>

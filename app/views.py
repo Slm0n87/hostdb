@@ -1,6 +1,7 @@
 from flask import render_template, flash, redirect, url_for, session, g, request
+from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db
-from .models import Host, Role, Stage, Domain
+from .models import Host, Role, Stage, Domain, User
 from .tables import HostTable
 from .forms import FilterHostForm, NewHostForm, RoleForm
 from .forms import DomainForm, StageForm
@@ -69,6 +70,7 @@ def index(page=1):
                            title='Home')
 
 @app.route('/host/new', methods = ['GET', 'POST'])
+@login_required
 def new_host():
     form = NewHostForm()
     form.role.choices = [(h.id, h.name) for h in Role.query.all()]
@@ -99,6 +101,7 @@ def new_host():
                        title='Add Host')
 
 @app.route('/host/edit/<host_id>', methods = ['GET', 'POST'])
+@login_required
 def edit_host(host_id):
     host = Host.query.get(host_id)
     if not host:
@@ -130,6 +133,7 @@ def edit_host(host_id):
                        title='Change Host')
 
 @app.route('/host/del/<host_id>', methods = ['GET', 'POST'])
+@login_required
 def delete_host(host_id):
     h = Host.query.get(host_id)
     if h:
@@ -141,6 +145,7 @@ def delete_host(host_id):
     return redirect(url_for('index'))
 
 @app.route('/add/role', methods = ['GET', 'POST'])
+@login_required
 def add_role():
     form = RoleForm()
 
@@ -160,6 +165,7 @@ def add_role():
                        title='Add role')
 
 @app.route('/add/stage', methods = ['GET', 'POST'])
+@login_required
 def add_stage():
     form= StageForm()
 
@@ -179,6 +185,7 @@ def add_stage():
                        title='Add stage')
 
 @app.route('/add/domain', methods = ['GET', 'POST'])
+@login_required
 def add_domain():
     form = DomainForm()
 
@@ -197,3 +204,31 @@ def add_domain():
                        form = form,
                        title='Add domain')
 
+@app.route('/register' , methods=['GET','POST'])
+def register():
+    if request.method == 'GET':
+        return render_template('register.html', title='Register')
+    user = User(request.form['username'] , request.form['password'],request.form['email'])
+    db.session.add(user)
+    db.session.commit()
+    flash('User successfully registered', 'info')
+    return redirect(url_for('login'))
+
+@app.route('/login',methods=['GET','POST'])
+def login():
+    if request.method == 'GET':
+        return render_template('login.html', title='Login')
+    username = request.form['username']
+    password = request.form['password']
+    registered_user = User.query.filter_by(username=username,password=password).first()
+    if registered_user is None:
+        flash('Username or Password is invalid' , 'warning')
+        return redirect(url_for('login'))
+    login_user(registered_user)
+    flash('Logged in successfully as %s' % username, 'info')
+    return redirect(request.args.get('next') or url_for('index'))
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('index')) 
