@@ -4,11 +4,13 @@ from .models import Host, Role, Stage, Domain
 from .tables import HostTable
 from .forms import FilterHostForm, NewHostForm, RoleForm
 from .forms import DomainForm, StageForm
+from config import HOSTS_PER_PAGE
 import re
 
 @app.route('/', methods = ['GET', 'POST'])
 @app.route('/index', methods = ['GET', 'POST'])
-def index():
+@app.route('/index/<int:page>', methods=['GET', 'POST'])
+def index(page=1):
     form = FilterHostForm()
     form.role.choices = [(h.id, h.name) for h in Role.query.all()]
     form.role.choices.insert(0, (0, 'all'))
@@ -56,13 +58,14 @@ def index():
     if domain:
         items = items.filter(Host.domain_id==domain)
         session['domain'] = domain
-    items = items.order_by('hostname asc').all()
+    items = items.order_by('hostname asc').paginate(page, HOSTS_PER_PAGE, False)
     if session['role'] or session['stage'] or session['domain']:
         flash('Filtered data.', 'info')
-    table = HostTable(items, classes=['table', 'table-striped'])
+    table = HostTable(items.items, classes=['table', 'table-striped'])
     return render_template("index.html",
                            form = form,
                            table = table,
+                           items=items,
                            title='Home')
 
 @app.route('/host/new', methods = ['GET', 'POST'])
