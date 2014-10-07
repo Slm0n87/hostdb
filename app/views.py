@@ -1,5 +1,6 @@
 from flask import render_template, flash, redirect, url_for, session, g, request
 from flask.ext.login import login_user, logout_user, current_user, login_required
+from werkzeug.security import check_password_hash
 from app import app, db
 from .models import Host, Role, Stage, Domain, User
 from .tables import HostTable
@@ -220,8 +221,8 @@ def login():
         return render_template('login.html', title='Login')
     username = request.form['username']
     password = request.form['password']
-    registered_user = User.query.filter_by(username=username,password=password).first()
-    if registered_user is None:
+    registered_user = User.query.filter_by(username=username).first()
+    if registered_user is None or check_password_hash(registered_user.password, password) is False:
         flash('Username or Password is invalid' , 'warning')
         return redirect(url_for('login'))
     login_user(registered_user)

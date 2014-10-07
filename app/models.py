@@ -1,5 +1,6 @@
 from app import db
 from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
 
 class Host(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -51,16 +52,22 @@ class User(db.Model):
     __tablename__ = "users"
     id = db.Column('user_id',db.Integer , primary_key=True)
     username = db.Column('username', db.String(20), unique=True , index=True)
-    password = db.Column('password' , db.String(10))
+    password = db.Column('password' , db.String(128))
     email = db.Column('email',db.String(50),unique=True , index=True)
     registered_on = db.Column('registered_on' , db.DateTime)
  
-    def __init__(self , username ,password , email):
+    def __init__(self, username, password, email):
         self.username = username
-        self.password = password
+        self.set_password(password)
         self.email = email
         self.registered_on = datetime.utcnow()
- 
+
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
+
     def is_authenticated(self):
         return True
  
