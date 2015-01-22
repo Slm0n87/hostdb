@@ -22,6 +22,10 @@ def index(page=1):
     form.domain.choices = [(d.id, d.name) for d in Domain.query.all()]
     form.domain.choices.insert(0, (0, 'all'))
 
+    for key in ['role', 'stage', 'domain']:
+        if not session.has_key(key):
+            session[key] = None
+
     stage = session.get('stage', None)
     role = session.get('role', None)
     domain = session.get('domain', None)
@@ -46,9 +50,9 @@ def index(page=1):
             form.domain.data = None
     # set filter dropdowns to the values of the session
     else:
-        form.role.data = session['role']
-        form.stage.data = session['stage']
-        form.domain.data = session['domain']
+        form.role.data = session.get('role', None)
+        form.stage.data = session.get('stage', None)
+        form.domain.data = session.get('domain', None)
 
 
     items = Host.query

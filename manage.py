@@ -11,7 +11,7 @@ manager.add_command('db', MigrateCommand)
 
 import flask.ext.restless
 restless = flask.ext.restless.APIManager(app, flask_sqlalchemy_db=db)
-restless.create_api(Host, methods=['GET'])
+restless.create_api(Host, methods=['GET'], results_per_page=None)
 
 def make_shell_context():
     return dict(app=app, db=db, User=User, Role=Role, Stage=Stage, Host=Host,

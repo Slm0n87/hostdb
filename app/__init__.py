@@ -9,7 +9,7 @@ import flask.ext.restless
 bootstrap = Bootstrap()
 db = SQLAlchemy()
 login_manager = LoginManager()
-login_manager.login_view = 'login'
+login_manager.login_view = 'main.login'
 #rest_manager = flask.ext.restless.APIManager()
 
 
