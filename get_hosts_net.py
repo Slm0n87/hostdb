@@ -33,7 +33,8 @@ if args.domain:
 
 params = dict(q=json.dumps(dict(filters=filters)))
 
-response = requests.get(url, params=params, headers=headers)
+response = requests.get(url, params=params, headers=headers,
+                        verify='IT-CA.pem')
 assert response.status_code == 200
 
 data = response.text
