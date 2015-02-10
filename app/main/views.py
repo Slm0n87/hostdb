@@ -236,28 +236,26 @@ def confirm(token):
     if current_user.confirmed:
         return redirect(url_for('.index'))
     if current_user.confirm(token):
-        flash('You have confirmed your account. Thanks! ')
+        flash('You have confirmed your account. Thanks!', 'info')
         token2 = current_user.generate_activation_token()
-        send_email(current_app.config['MAIL_SENDER'], 'Activate account for %s' % current_user.email,
+        send_email(current_app.config['MAIL_ADMIN'], 'Activate account for %s' % current_user.email,
                    'email/activate', user=current_user, token=token2)
         flash('An admin has been notified to activate the account before you can login.', 'info')
     else:
-        flash('The confirmation link is invalid or has expired.')
+        flash('The confirmation link is invalid or has expired.', 'warning')
     logout_user()
     return redirect(url_for('.index'))
 
 @main.route('/activate/<token>')
 @login_required
 def activate(token):
-    if current_user.activated:
-        return redirect(url_for('.index'))
     user = current_user.activate(token)
     if user:
-        flash('You have activated an account.')
         send_email(user.email, 'Your account has been activated',
                    'email/activated', user=user)
+        flash('You have activated the account for user %s.' % user.username, 'info')
     else:
-        flash('The activation link is invalid or has expired.')
+        flash('The activation link is invalid or has expired.', 'warning')
     return redirect(url_for('.index'))
 
 

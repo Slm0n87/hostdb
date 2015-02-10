@@ -1,14 +1,14 @@
 """user confirmatiion
 
 Revision ID: a326469e153
-Revises: 3ead3f5b6f77
+Revises: 4b426fc14336
 Create Date: 2015-02-09 14:24:32.647412
 
 """
 
 # revision identifiers, used by Alembic.
 revision = 'a326469e153'
-down_revision = '3ead3f5b6f77'
+down_revision = '4b426fc14336'
 
 from alembic import op
 import sqlalchemy as sa

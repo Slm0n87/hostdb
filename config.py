@@ -8,10 +8,12 @@ class Config:
     SSL_DISABLE = True
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     SQLALCHEMY_RECORD_QUERIES = True
-    MAIL_SERVER = 'mxintern.schlund.de'
+    #MAIL_SERVER = 'mxintern.schlund.de'
+    MAIL_SERVER = 'localhost'
     MAIL_PORT = 25
     MAIL_SUBJECT_PREFIX = '[DIY HostDB]'
     MAIL_SENDER = 'Diy Admin <diyadmin@1und1.de>'
+    MAIL_ADMIN = 'sven.hergenhahn@1und1.de'
     #ADMIN = os.environ.get('FLASKY_ADMIN')
 
     @staticmethod
