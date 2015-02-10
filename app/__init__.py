@@ -2,6 +2,7 @@ from flask import Flask, g
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
 from flask.ext.login import LoginManager, current_user
+from flask.ext.mail import Mail
 from config import config
 import flask.ext.restless
 
@@ -11,6 +12,7 @@ db = SQLAlchemy()
 login_manager = LoginManager()
 login_manager.login_view = 'main.login'
 rest_manager = flask.ext.restless.APIManager()
+mail = Mail()
 
 
 def create_app(config_name):
@@ -21,6 +23,7 @@ def create_app(config_name):
     bootstrap.init_app(app)
     db.init_app(app)
     login_manager.init_app(app)
+    mail.init_app(app)
     rest_manager.init_app(app, flask_sqlalchemy_db=db)
  
     from app import models

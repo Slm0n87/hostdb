@@ -2,6 +2,7 @@ from flask import render_template, flash, redirect, url_for, session, g, request
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from werkzeug.security import check_password_hash
 from .. import db
+from ..email import send_email
 from . import main
 from ..models import Host, Role, Stage, Domain, User
 from .tables import HostTable
@@ -223,8 +224,42 @@ def register():
     user = User(request.form['username'] , request.form['password'],request.form['email'])
     db.session.add(user)
     db.session.commit()
-    flash('User successfully registered', 'info')
+    token = user.generate_confirmation_token()
+    send_email(user.email, 'Confirm Your Account',
+               'email/confirm', user=user, token=token)
+    flash('A confirmation email has been sent to you by email.', 'info')
     return redirect(url_for('.login'))
+
+@main.route('/confirm/<token>')
+@login_required
+def confirm(token):
+    if current_user.confirmed:
+        return redirect(url_for('.index'))
+    if current_user.confirm(token):
+        flash('You have confirmed your account. Thanks! ')
+        token2 = current_user.generate_activation_token()
+        send_email(current_app.config['MAIL_SENDER'], 'Activate account for %s' % current_user.email,
+                   'email/activate', user=current_user, token=token2)
+        flash('An admin has been notified to activate the account before you can login.', 'info')
+    else:
+        flash('The confirmation link is invalid or has expired.')
+    logout_user()
+    return redirect(url_for('.index'))
+
+@main.route('/activate/<token>')
+@login_required
+def activate(token):
+    if current_user.activated:
+        return redirect(url_for('.index'))
+    user = current_user.activate(token)
+    if user:
+        flash('You have activated an account.')
+        send_email(user.email, 'Your account has been activated',
+                   'email/activated', user=user)
+    else:
+        flash('The activation link is invalid or has expired.')
+    return redirect(url_for('.index'))
+
 
 @main.route('/login',methods=['GET','POST'])
 def login():
@@ -236,8 +271,14 @@ def login():
     if registered_user is None or check_password_hash(registered_user.password, password) is False:
         flash('Username or Password is invalid' , 'warning')
         return redirect(url_for('.login'))
-    login_user(registered_user)
-    flash('Logged in successfully as %s' % username, 'info')
+    elif registered_user.confirmed == 0 and request.args.get('next').startswith('/confirm/'):
+        login_user(registered_user)
+        return redirect(request.args.get('next'))
+    elif registered_user.activated == 0:
+        flash('Your account still requires activation by the admins, they have already been notified' , 'info')
+    else:
+        login_user(registered_user)
+        flash('Logged in successfully as %s' % username, 'info')
     return redirect(request.args.get('next') or url_for('.index'))
 
 @main.route('/logout')

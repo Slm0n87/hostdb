@@ -1,5 +1,7 @@
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from flask import current_app, request, url_for
 from . import db, login_manager
 
 class Host(db.Model):
@@ -66,7 +68,9 @@ class User(db.Model):
     password = db.Column('password' , db.String(128))
     email = db.Column('email',db.String(50),unique=True , index=True)
     registered_on = db.Column('registered_on' , db.DateTime)
- 
+    confirmed = db.Column(db.Boolean, default=False)
+    activated = db.Column(db.Boolean, default=False)
+
     def __init__(self, username, password, email):
         self.username = username
         self.set_password(password)
@@ -81,16 +85,49 @@ class User(db.Model):
 
     def is_authenticated(self):
         return True
- 
+
     def is_active(self):
         return True
- 
+
     def is_anonymous(self):
         return False
- 
+
     def get_id(self):
         return unicode(self.id)
- 
+
+    def generate_confirmation_token(self, expiration=3600):
+        s = Serializer(current_app.config['SECRET_KEY'], expiration)
+        return s.dumps({'confirm': self.id})
+
+    def generate_activation_token(self, expiration=3600):
+        s = Serializer(current_app.config['SECRET_KEY'], expiration)
+        return s.dumps({'activate': self.id})
+
+    def confirm(self, token):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token)
+        except:
+            return False
+        if data.get('confirm') != self.id:
+            return False
+        self.confirmed = True
+        db.session.add(self)
+        return True
+
+    @staticmethod
+    def activate(token):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token)
+        except:
+            return False
+        user = User.query.get(data['activate'])
+        if user.activated is False:
+            user.activated = True
+            db.session.add(user)
+        return user
+
     def __repr__(self):
         return '<User %r>' % (self.username)
 
