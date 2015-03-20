@@ -30,7 +30,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
           <li class="dropdown{% if title in ['Login', 'Register'] %} active{% endif %}">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span><span class="caret"></span></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user" title="{{ g.user.username }}"></span><span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">
   {% if g.user.is_authenticated()%}
               <li><a href="{{ url_for('.logout') }}">Logout</a></li>
