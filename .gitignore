@@ -5,3 +5,4 @@
 *.sw?
 app.db.bak
 *.sqlite
+venv/
