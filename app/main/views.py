@@ -9,7 +9,8 @@ from .tables import HostTable
 from .forms import FilterHostForm, NewHostForm, RoleForm
 from .forms import DomainForm, StageForm
 import re
-from datetime import datetime
+from datetime import datetime, tzinfo
+import pytz
 
 @main.route('/', methods = ['GET', 'POST'])
 @main.route('/index', methods = ['GET', 'POST'])
@@ -130,7 +131,7 @@ def edit_host(host_id):
         host.domain_id = form.domain.data
         host.stage_id = form.stage.data
         host.modified_by = g.user.id
-        host.last_modified = datetime.utcnow()
+        host.last_modified = datetime.now(tz=pytz.utc)
         db.session.add(host)
         db.session.commit()
         flash('Changed host: %s' % host.hostname, 'success')
