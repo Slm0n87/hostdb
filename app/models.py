@@ -3,6 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask import current_app, request, url_for
 from . import db, login_manager
+from pytz import timezone
 
 class Host(db.Model):
     __tablename__ = "host"
@@ -20,7 +21,8 @@ class Host(db.Model):
         self.stage_id = stage
         self.role_id = role
         self.modified_by = user
-        self.last_modified = datetime.utcnow()
+        tz = timezone(current_app.config['TIMEZONE'])
+        self.last_modified = datetime.now(tz)
 
     def __repr__(self):
         return '<Host %r>' % (self.hostname)

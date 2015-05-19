@@ -15,6 +15,7 @@ class Config:
     MAIL_SENDER = 'Diy Admin <diyadmin@1und1.de>'
     MAIL_ADMIN = 'simon.stier@1und1.de'
     #ADMIN = os.environ.get('FLASKY_ADMIN')
+    TIMEZONE = 'Europe/Berlin'
 
     @staticmethod
     def init_app(app):

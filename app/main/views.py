@@ -10,7 +10,9 @@ from .forms import FilterHostForm, NewHostForm, RoleForm
 from .forms import DomainForm, StageForm
 import re
 from datetime import datetime, tzinfo
-import pytz
+from pytz import timezone
+
+
 
 @main.route('/', methods = ['GET', 'POST'])
 @main.route('/index', methods = ['GET', 'POST'])
@@ -126,12 +128,13 @@ def edit_host(host_id):
     form.domain.choices = [(d.id, d.name) for d in Domain.query.all()]
 
     if form.validate_on_submit():
+        tz = timezone(current_app.config['TIMEZONE'])
         host.hostname = form.hostname.data
         host.role_id = form.role.data
         host.domain_id = form.domain.data
         host.stage_id = form.stage.data
         host.modified_by = g.user.id
-        host.last_modified = datetime.now(tz=pytz.utc)
+        host.last_modified = datetime.now(tz)
         db.session.add(host)
         db.session.commit()
         flash('Changed host: %s' % host.hostname, 'success')
