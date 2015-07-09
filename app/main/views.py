@@ -44,9 +44,9 @@ def index(page=1):
             session['domain'] = form.domain.data
             session['stage'] = form.stage.data
             session['namelike'] = form.namelike.data
-            if not '%' in session['namelike']:
+            if len(session['namelike']) and not '%' in session['namelike']:
                 session['namelike'] += '%'
-        # 'All' clicked - reset all fields everywhere
+        # 'Reset' clicked - reset all fields everywhere
         else:
             role = None
             session['role'] = None

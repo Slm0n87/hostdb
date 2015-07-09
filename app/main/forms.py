@@ -14,7 +14,7 @@ class FilterHostForm(Form):
     stage = SelectField(u'Stage', coerce=int)
     domain = SelectField(u'Domain', coerce=int)
     submit = SubmitField(u'Filter')
-    allhosts = SubmitField(u'All')
+    allhosts = SubmitField(u'Reset')
 
 class NewHostForm(Form):
     hostname = StringField(u'Hostname', validators=[DataRequired(), 
