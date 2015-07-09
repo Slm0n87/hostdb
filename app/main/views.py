@@ -19,11 +19,11 @@ from pytz import timezone
 @main.route('/index/<int:page>', methods=['GET', 'POST'])
 def index(page=1):
     form = FilterHostForm()
-    form.role.choices = [(h.id, h.name) for h in Role.query.all()]
+    form.role.choices = [(h.id, h.name) for h in Role.query.order_by('name').all()]
     form.role.choices.insert(0, (0, 'all'))
-    form.stage.choices = [(s.id, s.name) for s in Stage.query.all()]
+    form.stage.choices = [(s.id, s.name) for s in Stage.query.order_by('name').all()]
     form.stage.choices.insert(0, (0, 'all'))
-    form.domain.choices = [(d.id, d.name) for d in Domain.query.all()]
+    form.domain.choices = [(d.id, d.name) for d in Domain.query.order_by('name').all()]
     form.domain.choices.insert(0, (0, 'all'))
 
     for key in ['role', 'stage', 'domain']:
