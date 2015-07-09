@@ -1,7 +1,15 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
+
 {% block container %}
   {{ wtf.quick_form(form, extra_classes='form-inline') }}
+ <hr>
+ <h4>Already existing:</h4>
+  <ul class="list-unstyled">
+ {% for item in liste %}
+  <li>{{ item.name }}</li>
+ {% endfor %}
+  </ul>
 {% endblock %}
 
 

@@ -178,8 +178,10 @@ def add_role():
             flash('Added new role: %s' % form.name.data, 'success')
         return redirect(url_for('.index'))
 
+    roles = Role.query.order_by('name').all()
     return render_template("admin.html",
                        form = form,
+                       liste = roles,
                        title='Add role')
 
 @main.route('/add/stage', methods = ['GET', 'POST'])
@@ -198,8 +200,10 @@ def add_stage():
             flash('Added new stage: %s' % form.name.data, 'success')
         return redirect(url_for('.index'))
 
+    stages = Stage.query.order_by('name').all()
     return render_template("admin.html",
                        form = form,
+                       liste = stages,
                        title='Add stage')
 
 @main.route('/add/domain', methods = ['GET', 'POST'])
@@ -218,8 +222,10 @@ def add_domain():
             flash('Added new domain: %s' % form.name.data, 'success')
         return redirect(url_for('.index'))
 
+    domains = Domain.query.order_by('name').all()
     return render_template("admin.html",
                        form = form,
+                       liste = domains,
                        title='Add domain')
 
 @main.route('/register' , methods=['GET','POST'])
