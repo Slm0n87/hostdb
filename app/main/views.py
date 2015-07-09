@@ -38,9 +38,10 @@ def index(page=1):
     if form.validate_on_submit():
         # 'Filter' clicked
         if request.form['submit'] == 'Filter':
-            role = form.role.data
-            domain = form.domain.data
-            stage = form.stage.data
+            flash('Filtered data.', 'info')
+            session['role'] = form.role.data
+            session['domain'] = form.domain.data
+            session['stage'] = form.stage.data
         # 'All' clicked - reset all fields everywhere
         else:
             role = None
@@ -52,6 +53,8 @@ def index(page=1):
             form.role.data = None
             form.stage.data = None
             form.domain.data = None
+        # Post/Redirect/Get !!!
+        return redirect(url_for('.index'))
     # set filter dropdowns to the values of the session
     else:
         form.role.data = session.get('role', None)
@@ -71,8 +74,6 @@ def index(page=1):
         session['domain'] = domain
     items = items.order_by('hostname asc').paginate(page,
                                                     current_app.config['HOSTS_PER_PAGE'], False)
-    if session['role'] or session['stage'] or session['domain']:
-        flash('Filtered data.', 'info')
     table = HostTable(items.items, classes=['table', 'table-striped'])
     return render_template("index.html",
                            form = form,
