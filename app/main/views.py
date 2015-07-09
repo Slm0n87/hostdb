@@ -26,13 +26,14 @@ def index(page=1):
     form.domain.choices = [(d.id, d.name) for d in Domain.query.order_by('name').all()]
     form.domain.choices.insert(0, (0, 'all'))
 
-    for key in ['role', 'stage', 'domain']:
+    for key in ['namelike', 'role', 'stage', 'domain']:
         if not session.has_key(key):
             session[key] = None
 
     stage = session.get('stage', None)
     role = session.get('role', None)
     domain = session.get('domain', None)
+    namelike = session.get('namelike', None)
 
     # Form was submitted ...
     if form.validate_on_submit():
@@ -42,6 +43,9 @@ def index(page=1):
             session['role'] = form.role.data
             session['domain'] = form.domain.data
             session['stage'] = form.stage.data
+            session['namelike'] = form.namelike.data
+            if not '%' in session['namelike']:
+                session['namelike'] += '%'
         # 'All' clicked - reset all fields everywhere
         else:
             role = None
@@ -53,6 +57,9 @@ def index(page=1):
             form.role.data = None
             form.stage.data = None
             form.domain.data = None
+            namelike = None
+            form.namelike.data = None
+            session['namelike'] = None
         # Post/Redirect/Get !!!
         return redirect(url_for('.index'))
     # set filter dropdowns to the values of the session
@@ -60,6 +67,7 @@ def index(page=1):
         form.role.data = session.get('role', None)
         form.stage.data = session.get('stage', None)
         form.domain.data = session.get('domain', None)
+        form.namelike.data = session.get('namelike', None)
 
 
     items = Host.query
@@ -72,6 +80,9 @@ def index(page=1):
     if domain:
         items = items.filter(Host.domain_id==domain)
         session['domain'] = domain
+    if namelike:
+        items = items.filter(Host.hostname.like(namelike))
+        session['namelike'] = namelike
     items = items.order_by('hostname asc').paginate(page,
                                                     current_app.config['HOSTS_PER_PAGE'], False)
     table = HostTable(items.items, classes=['table', 'table-striped'])

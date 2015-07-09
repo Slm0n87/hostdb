@@ -3,6 +3,13 @@ from wtforms import StringField, BooleanField, SelectField, SubmitField
 from wtforms.validators import DataRequired, Regexp, Length
 
 class FilterHostForm(Form):
+    namelike = StringField(u'Hostname', 
+                         validators=[
+                             Regexp(r'^[A-Za-z0-9-%]*$',
+                                    message='Not a hostname "like" expression'
+                                    )
+                             ]
+                         )
     role = SelectField(u'Role', coerce=int)
     stage = SelectField(u'Stage', coerce=int)
     domain = SelectField(u'Domain', coerce=int)
