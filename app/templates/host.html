@@ -1,20 +1,22 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 {% block container %}
-<form class="form form-inline" method="post" role="form">
+
+<form class="form form-horizontal" method="post" role="form">
   {{ form.hidden_tag() }}
   {{ wtf.form_errors(form, hiddens="only") }}
-  {{ wtf.form_field(form.hostname) }}
-  {{ wtf.form_field(form.domain) }}
-  {{ wtf.form_field(form.role) }}
-  {{ wtf.form_field(form.stage) }}
-  {% if title == 'Add Host' %}
-  {{ wtf.form_field(form.geohost) }}
-  <span class="help-block">You may enter the 'a'-side's hostname and check the georedundant checkbox to also create the corresponding 'b' side.</span>
-  {% else %}
-  <span class="help-block">This record was last modified by <strong>{{ by }}</strong> on <strong>{{ when }}</strong>.</span>
-  {% endif %}
+  {{ wtf.form_field(form.hostname, form_type='horizontal', horizontal_columns=('lg', 1, 3),) }}
+  {{ wtf.form_field(form.domain, form_type='horizontal', horizontal_columns=('lg', 1, 3),) }}
+  {{ wtf.form_field(form.role, form_type='horizontal', horizontal_columns=('lg', 1, 3),) }}
+  {{ wtf.form_field(form.stage, form_type='horizontal', horizontal_columns=('lg', 1, 3),) }}
+ {% if title == 'Add Host' %}
+   {{ wtf.form_field(form.geohost,  form_type='horizontal', horizontal_columns=('lg', 1, 3),) }}
+   <span class="help-block">You may enter the 'a'-side's hostname and check the georedundant checkbox to also create the corresponding 'b' side.</span>
+ {% else %}
+   <span class="help-block">This record was last modified by <strong>{{ by }}</strong> on <strong>{{ when }}</strong>.</span>
+ {% endif %}
   <input class="btn btn-default" id="submit" name="submit" type="submit" value="{{ title }}">
 </form>
 <hr>
 {% endblock %}
+

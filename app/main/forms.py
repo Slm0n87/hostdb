@@ -21,9 +21,9 @@ class NewHostForm(Form):
                                                    Regexp(r'^[A-Za-z0-9-]+$',
                                                           message='Invalid characters')
                                                    ])
+    domain = SelectField(u'Domain', coerce=int)
     role = SelectField(u'Role', coerce=int)
     stage = SelectField(u'Stage', coerce=int)
-    domain = SelectField(u'Domain', coerce=int)
     geohost = BooleanField(u'georedundant?')
 
 class RoleForm(Form):
