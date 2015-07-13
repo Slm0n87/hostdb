@@ -71,5 +71,8 @@
 <script type='text/javascript'>
     // focus the form
     $("input:text:visible:first").focus();
+    $(".alert").fadeTo(3000, 500).slideUp(500, function(){
+       $(".alert").alert('close');
+    });
 </script>
 {% endblock %}
