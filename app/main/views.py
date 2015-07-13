@@ -157,8 +157,15 @@ def edit_host(host_id):
         form.stage.data = host.stage_id
         form.domain.data = host.domain_id
 
+        # metadata
+        by = User.query.get(host.modified_by).username
+        when = host.last_modified
+        when = when.replace(microsecond=0)
+
         return render_template("host.html",
                        form = form,
+                       by = by,
+                       when = when,
                        title='Change Host')
 
 @main.route('/host/del/<host_id>', methods = ['GET', 'POST'])
