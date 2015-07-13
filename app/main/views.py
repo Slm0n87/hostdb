@@ -140,17 +140,20 @@ def edit_host(host_id):
     form.domain.choices = [(d.id, d.name) for d in Domain.query.all()]
 
     if form.validate_on_submit():
-        tz = timezone(current_app.config['TIMEZONE'])
-        host.hostname = form.hostname.data
-        host.role_id = form.role.data
-        host.domain_id = form.domain.data
-        host.stage_id = form.stage.data
-        host.modified_by = g.user.id
-        host.last_modified = datetime.now(tz)
-        db.session.add(host)
-        db.session.commit()
-        flash('Changed host: %s' % host.hostname, 'success')
-        return redirect(url_for('.index'))
+        if request.form['submit'] == 'Delete':
+            return redirect(url_for('.delete_host', host_id=host_id))
+        else:
+            tz = timezone(current_app.config['TIMEZONE'])
+            host.hostname = form.hostname.data
+            host.role_id = form.role.data
+            host.domain_id = form.domain.data
+            host.stage_id = form.stage.data
+            host.modified_by = g.user.id
+            host.last_modified = datetime.now(tz)
+            db.session.add(host)
+            db.session.commit()
+            flash('Changed host: %s' % host.hostname, 'success')
+            return redirect(url_for('.index'))
     else:
         form.hostname.data = host.hostname
         form.role.data = host.role_id

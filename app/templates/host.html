@@ -15,7 +15,11 @@
  {% else %}
    <span class="help-block">This record was last modified by <strong>{{ by }}</strong> on <strong>{{ when }}</strong>.</span>
  {% endif %}
-  <input class="btn btn-default" id="submit" name="submit" type="submit" value="{{ title }}">
+  <input class="btn btn-default active" id="submit" name="submit" type="submit" value="{{ title }}">
+  <input class="btn btn-info" id="submit" name="submit" type="submit" value="Cancel" onClick='history.back();return false;'>
+ {% if title != 'Add Host' %}
+ <input class="btn btn-primary" id="submit" name="submit" type="submit" value="Delete" onClick="return confirm('Delete host {{ form.hostname.data }}?');">
+ {% endif %}
 </form>
 <hr>
 {% endblock %}
