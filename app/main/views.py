@@ -160,7 +160,7 @@ def edit_host(host_id):
         # metadata
         by = User.query.get(host.modified_by).username
         when = host.last_modified
-        when = when.replace(microsecond=0)
+        when = when.strftime('%Y-%m-%d %H:%M:%S %z')
 
         return render_template("host.html",
                        form = form,
