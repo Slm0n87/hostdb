@@ -16,10 +16,11 @@
    <span class="help-block">This record was last modified by <strong>{{ by }}</strong> on <strong>{{ when }}</strong>.</span>
  {% endif %}
   <input class="btn btn-default active" id="submit" name="submit" type="submit" value="{{ title }}">
-  <input class="btn btn-info" id="submit" name="submit" type="submit" value="Cancel" onClick='history.back();return false;'>
  {% if title != 'Add Host' %}
- <input class="btn btn-primary" id="submit" name="submit" type="submit" value="Delete" onClick="return confirm('Delete host {{ form.hostname.data }}?');">
+ <input class="btn btn-success" id="submit" name="submit" type="submit" value="Clone" data-toggle="tooltip" data-placement="bottom" title="Create a new host by cloning this one. Just click without editing here first.">
+ <input class="btn btn-primary" id="submit" name="submit" type="submit" value="Delete"data-toggle="tooltip" data-placement="bottom" title="Remove this host completely. This cannot be undone!" onClick="return confirm('Delete host {{ form.hostname.data }}?');">
  {% endif %}
+  <input class="btn btn-info" id="submit" name="submit" type="submit" value="Cancel" onClick='history.back();return false;'>
 </form>
 <hr>
 {% endblock %}

@@ -93,8 +93,18 @@ def index(page=1):
                            title='Home')
 
 @main.route('/host/new', methods = ['GET', 'POST'])
+@main.route('/host/new/<clone_from>', methods = ['GET', 'POST'])
 @login_required
-def new_host():
+def new_host(clone_from=None):
+
+    if clone_from:
+        host = Host.query.get(clone_from)
+        if not host:
+            flash('Host does not exist', 'warning')
+            return redirect( url_for('.index'))
+    else:
+        host = None
+
     form = NewHostForm()
     form.role.choices = [(h.id, h.name) for h in Role.query.order_by('name').all()]
     form.stage.choices = [(s.id, s.name) for s in Stage.query.order_by('name').all()]
@@ -121,6 +131,11 @@ def new_host():
                 db.session.commit()
                 flash('Added new host: %s' % hostname, 'success')
         return redirect(url_for('.index'))
+    elif host:
+        form.hostname.data = host.hostname
+        form.role.data = host.role_id
+        form.stage.data = host.stage_id
+        form.domain.data = host.domain_id
 
     return render_template("host.html",
                        form = form,
@@ -142,6 +157,8 @@ def edit_host(host_id):
     if form.validate_on_submit():
         if request.form['submit'] == 'Delete':
             return redirect(url_for('.delete_host', host_id=host_id))
+        elif request.form['submit'] == 'Clone':
+            return redirect(url_for('.new_host', clone_from=host_id))
         else:
             tz = timezone(current_app.config['TIMEZONE'])
             host.hostname = form.hostname.data
