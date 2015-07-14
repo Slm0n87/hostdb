@@ -96,9 +96,9 @@ def index(page=1):
 @login_required
 def new_host():
     form = NewHostForm()
-    form.role.choices = [(h.id, h.name) for h in Role.query.all()]
-    form.stage.choices = [(s.id, s.name) for s in Stage.query.all()]
-    form.domain.choices = [(d.id, d.name) for d in Domain.query.all()]
+    form.role.choices = [(h.id, h.name) for h in Role.query.order_by('name').all()]
+    form.stage.choices = [(s.id, s.name) for s in Stage.query.order_by('name').all()]
+    form.domain.choices = [(d.id, d.name) for d in Domain.query.order_by('name').all()]
 
     if form.validate_on_submit():
         hostnames = [form.hostname.data]
@@ -135,9 +135,9 @@ def edit_host(host_id):
         return redirect( url_for('.index'))
 
     form = NewHostForm()
-    form.role.choices = [(h.id, h.name) for h in Role.query.all()]
-    form.stage.choices = [(s.id, s.name) for s in Stage.query.all()]
-    form.domain.choices = [(d.id, d.name) for d in Domain.query.all()]
+    form.role.choices = [(h.id, h.name) for h in Role.query.order_by('name').all()]
+    form.stage.choices = [(s.id, s.name) for s in Stage.query.order_by('name').all()]
+    form.domain.choices = [(d.id, d.name) for d in Domain.query.order_by('name').all()]
 
     if form.validate_on_submit():
         if request.form['submit'] == 'Delete':
