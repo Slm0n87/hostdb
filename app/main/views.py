@@ -4,9 +4,9 @@ from werkzeug.security import check_password_hash
 from .. import db
 from ..email import send_email
 from . import main
-from ..models import Host, Role, Stage, Domain, User
-from .tables import HostTable
-from .forms import FilterHostForm, NewHostForm, RoleForm
+from ..models import Host, Role, Stage, Domain, User, History
+from .tables import HostTable, HistoryTable
+from .forms import FilterHostForm, NewHostForm, RoleForm, FilterHistoryForm
 from .forms import DomainForm, StageForm
 import re
 from datetime import datetime, tzinfo
@@ -122,13 +122,23 @@ def new_host(clone_from=None):
                 role = form.role.data
                 domain = form.domain.data
                 stage = form.stage.data
+                comment = form.comment.data
                 h = Host(hostname=hostname,
                          role=role,
                          domain=domain,
                          stage=stage,
+                         comment=comment,
                          user = g.user.id)
                 db.session.add(h)
                 db.session.commit()
+                if h.id:
+                    history = History(
+                            action='add',
+                            item=h,
+                            user=g.user.id
+                            )
+                    db.session.add(history)
+                    db.session.commit()
                 flash('Added new host: %s' % hostname, 'success')
         return redirect(url_for('.index'))
     elif host:
@@ -136,6 +146,7 @@ def new_host(clone_from=None):
         form.role.data = host.role_id
         form.stage.data = host.stage_id
         form.domain.data = host.domain_id
+        form.comment.data = host.comment
 
     return render_template("host.html",
                        form = form,
@@ -160,14 +171,24 @@ def edit_host(host_id):
         elif request.form['submit'] == 'Clone':
             return redirect(url_for('.new_host', clone_from=host_id))
         else:
-            tz = timezone(current_app.config['TIMEZONE'])
+            if current_app.config['TIMEZONE'] == 'NAIVE':
+                tz=None
+            else:
+                tz = timezone(current_app.config['TIMEZONE'])
             host.hostname = form.hostname.data
             host.role_id = form.role.data
             host.domain_id = form.domain.data
             host.stage_id = form.stage.data
             host.modified_by = g.user.id
             host.last_modified = datetime.now(tz)
+            host.comment = form.comment.data
+            history = History(
+                    action='change',
+                    item=host,
+                    user=g.user.id
+                    )
             db.session.add(host)
+            db.session.add(history)
             db.session.commit()
             flash('Changed host: %s' % host.hostname, 'success')
             return redirect(url_for('.index'))
@@ -176,6 +197,7 @@ def edit_host(host_id):
         form.role.data = host.role_id
         form.stage.data = host.stage_id
         form.domain.data = host.domain_id
+        form.comment.data = host.comment
 
         # metadata
         by = User.query.get(host.modified_by).username
@@ -193,6 +215,12 @@ def edit_host(host_id):
 def delete_host(host_id):
     h = Host.query.get(host_id)
     if h:
+        history = History(
+                action='delete',
+                item=h,
+                user=g.user.id
+                )
+        db.session.add(history)
         db.session.delete(h)
         db.session.commit()
         flash('Removed host: %s' % h.hostname, 'success')
@@ -213,6 +241,14 @@ def add_role():
             r = Role(name=form.name.data)
             db.session.add(r)
             db.session.commit()
+            if r.id:
+                history = History(
+                        action='add',
+                        item=r,
+                        user=g.user.id
+                        )
+                db.session.add(history)
+                db.session.commit()
             flash('Added new role: %s' % form.name.data, 'success')
         return redirect(url_for('.index'))
 
@@ -235,6 +271,14 @@ def add_stage():
             r = Stage(name=form.name.data)
             db.session.add(r)
             db.session.commit()
+            if r.id:
+                history = History(
+                        action='add',
+                        item=r,
+                        user=g.user.id
+                        )
+                db.session.add(history)
+                db.session.commit()
             flash('Added new stage: %s' % form.name.data, 'success')
         return redirect(url_for('.index'))
 
@@ -257,6 +301,14 @@ def add_domain():
             r = Domain(name=form.name.data)
             db.session.add(r)
             db.session.commit()
+            if r.id:
+                history = History(
+                        action='add',
+                        item=r,
+                        user=g.user.id
+                        )
+                db.session.add(history)
+                db.session.commit()
             flash('Added new domain: %s' % form.name.data, 'success')
         return redirect(url_for('.index'))
 
@@ -338,3 +390,73 @@ def before_request():
         g.user = current_user
 
 
+@main.route('/history', methods = ['GET', 'POST'])
+def history(page=1):
+    form = FilterHistoryForm()
+    form.action.choices = [(h.action, h.action) for h in History.query.distinct('action').order_by('action').all()]
+    form.action.choices.insert(0, ('all', 'all'))
+    form.item_type.choices = [(h.item_type, h.item_type) for h in History.query.distinct('item_type').order_by('item_type').all()]
+    form.item_type.choices.insert(0, ('all', 'all'))
+    form.userid.choices = [(h.id, h.username) for h in User.query.order_by('username').all()]
+    form.userid.choices.insert(0, (0, 'all'))
+
+    for key in ['item_name', 'action', 'item_type', 'userid']:
+        if not session.has_key(key):
+            session[key] = None
+
+    action = session.get('action', None)
+    item_name = session.get('item_name', None)
+    item_type = session.get('item_type', None)
+    userid = session.get('userid', None)
+
+    # Form was submitted ...
+    if form.validate_on_submit():
+        # 'Filter' clicked
+        if request.form['submit'] == 'Filter':
+            flash('Filtered data.', 'info')
+            session['action'] = form.action.data
+            session['item_name'] = form.item_name.data
+            session['item_type'] = form.item_type.data
+            session['userid'] = form.userid.data
+            if len(session['item_name']) and not '%' in session['item_name']:
+                session['item_name'] += '%'
+        # 'Reset' clicked - reset all fields everywhere
+        else:
+            session['action'] = None
+            session['item_name'] = None
+            session['item_type'] = None
+            session['userid'] = 0
+            action = None
+            item_name = None
+            item_type = None
+            userid = None
+        # Post/Redirect/Get !!!
+        return redirect(url_for('.history', page=page))
+    # set filter dropdowns to the values of the session
+    else:
+        form.action.data = session.get('action', None)
+        form.item_name.data = session.get('item_name', None)
+        form.item_type.data = session.get('item_type', None)
+        form.userid.data = session.get('userid', None)
+
+    items = History.query
+    if action != 'all':
+        items = items.filter(History.action==action)
+        session['action'] = action
+    if item_type != 'all':
+        items = items.filter(History.item_type==item_type)
+        session['item_type'] = item_type
+    if userid:
+        items = items.filter(History.userid==userid)
+        session['userid'] = userid
+    if item_name:
+        items = items.filter(History.item_name.like(item_name))
+        session['item_name'] = item_name
+    items = items.order_by('date desc').paginate(page,
+                                                    current_app.config['HOSTS_PER_PAGE'], False)
+    table = HistoryTable(items.items, classes=['table', 'table-striped'])
+    return render_template("history.html",
+                           form = form,
+                           table = table,
+                           items=items,
+                           title='Home')

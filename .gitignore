@@ -4,5 +4,6 @@
 *.log
 *.sw?
 app.db.bak
-*.sqlite
+*.sqlite*
+migrations/*
 venv/

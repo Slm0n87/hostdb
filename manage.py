@@ -3,7 +3,7 @@ from app.models import Host, Role, Stage, Domain, User
 from flask.ext.script import Manager, Shell
 from flask.ext.migrate import Migrate, MigrateCommand
 
-app = create_app('production')
+app = create_app('development')
 manager = Manager(app)
 
 migrate = Migrate(app, db)

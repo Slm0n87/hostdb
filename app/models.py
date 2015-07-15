@@ -5,6 +5,40 @@ from flask import current_app, request, url_for
 from . import db, login_manager
 from pytz import timezone
 
+class History(db.Model):
+    __tablename__ = 'history'
+    id            = db.Column(db.Integer, primary_key=True)
+    date          = db.Column(db.DateTime)
+    userid        = db.Column(db.Integer, db.ForeignKey('users.user_id'))
+    item_id       = db.Column(db.Integer)
+    item_name     = db.Column(db.String(64))
+    item_type     = db.Column(db.String(64))
+    action        = db.Column(db.String(24))
+    comment       = db.Column(db.Text)
+
+    def __init__(self, action, item, user):
+        self.action = action
+        if type(item) == Host:
+            self.item_name = item.hostname
+        else:
+            self.item_name = item.name
+
+        self.item_id = item.id
+        self.item_type = type(item).__name__
+        self.comment = item.comment
+        self.userid = user
+        if current_app.config['TIMEZONE'] == 'NAIVE':
+            tz=None
+        else:
+            tz = timezone(current_app.config['TIMEZONE'])
+        self.date = datetime.now(tz).replace(microsecond=0)
+
+    def __repr__(self):
+        return '<History %r %r %r>' % (self.action, self.item_type, self.item_name)
+
+    def __unicode__(self):
+        return '%r_%r_%r' % (self.action, self.item_type, self.item_name)
+
 class Host(db.Model):
     __tablename__ = "host"
     id = db.Column(db.Integer, primary_key=True)
@@ -14,14 +48,19 @@ class Host(db.Model):
     stage_id = db.Column(db.Integer, db.ForeignKey('stage.id'))
     last_modified = db.Column(db.DateTime)
     modified_by = db.Column(db.Integer, db.ForeignKey('users.user_id'))
+    comment = db.Column(db.Text)
 
-    def __init__(self, hostname, stage, domain, role, user):
+    def __init__(self, hostname, stage, domain, role, user, comment):
         self.hostname = hostname
         self.domain_id = domain
         self.stage_id = stage
         self.role_id = role
         self.modified_by = user
-        tz = timezone(current_app.config['TIMEZONE'])
+        self.comment = comment
+        if current_app.config['TIMEZONE'] == 'NAIVE':
+            tz=None
+        else:
+            tz = timezone(current_app.config['TIMEZONE'])
         self.last_modified = datetime.now(tz)
 
     def __repr__(self):
@@ -33,6 +72,7 @@ class Host(db.Model):
 class Domain(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, unique=True)
+    comment = db.Column(db.Text)
     hosts = db.relationship('Host', backref='domain', lazy='dynamic')
 
     def __repr__(self):
@@ -44,6 +84,7 @@ class Domain(db.Model):
 class Stage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, unique=True)
+    comment = db.Column(db.Text)
     hosts = db.relationship('Host', backref='stage', lazy='dynamic')
 
     def __repr__(self):
@@ -55,6 +96,7 @@ class Stage(db.Model):
 class Role(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, unique=True)
+    comment = db.Column(db.Text)
     hosts = db.relationship('Host', backref='role', lazy='dynamic')
 
     def __repr__(self):

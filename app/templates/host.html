@@ -9,6 +9,7 @@
   {{ wtf.form_field(form.domain, form_type='horizontal', horizontal_columns=('lg', 1, 3),) }}
   {{ wtf.form_field(form.role, form_type='horizontal', horizontal_columns=('lg', 1, 3),) }}
   {{ wtf.form_field(form.stage, form_type='horizontal', horizontal_columns=('lg', 1, 3),) }}
+  {{ wtf.form_field(form.comment, form_type='horizontal', horizontal_columns=('lg', 1, 5),) }}
  {% if title == 'Add Host' %}
    {{ wtf.form_field(form.geohost,  form_type='horizontal', horizontal_columns=('lg', 1, 3),) }}
    <span class="help-block">You may enter the 'a'-side's hostname and check the georedundant checkbox to also create the corresponding 'b' side.</span>
