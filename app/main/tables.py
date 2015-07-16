@@ -24,7 +24,7 @@ class HostTable(Table):
         delete = LinkCol('Delete', '.delete_host', url_kwargs=dict(host_id='id'))
 
 class HistoryTable(Table):
-    date = DatetimeCol('Date')
+    date = Col('Date')
     userid = UserCol('User')
     action = Col('Action')
     item_type = Col('Type')
