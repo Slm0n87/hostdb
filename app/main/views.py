@@ -204,10 +204,14 @@ def edit_host(host_id):
         when = host.last_modified
         when = when.strftime('%Y-%m-%d %H:%M:%S %z')
 
+        events = History.query.filter(History.item_type=='Host').filter(History.item_name==form.hostname.data)
+        events = events.order_by('date desc').all()
+        table = HistoryTable(events, classes=['table', 'table-striped'])
         return render_template("host.html",
                        form = form,
                        by = by,
                        when = when,
+                       table=table,
                        title='Change Host')
 
 @main.route('/host/del/<host_id>', methods = ['GET', 'POST'])

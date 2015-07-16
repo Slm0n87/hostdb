@@ -2,6 +2,7 @@
 {% import "bootstrap/wtf.html" as wtf %}
 {% block container %}
 
+<h3>Edit Host</h3>
 <form class="form form-horizontal" method="post" role="form">
   {{ form.hidden_tag() }}
   {{ wtf.form_errors(form, hiddens="only") }}
@@ -24,5 +25,7 @@
   <input class="btn btn-info" id="submit" name="submit" type="submit" value="Cancel" onClick='history.back();return false;'>
 </form>
 <hr>
+<h3>History</h3>
+{{ table }}
 {% endblock %}
 
