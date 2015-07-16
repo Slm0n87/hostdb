@@ -391,11 +391,12 @@ def before_request():
 
 
 @main.route('/history', methods = ['GET', 'POST'])
+@login_required
 def history(page=1):
     form = FilterHistoryForm()
-    form.action.choices = [(h.action, h.action) for h in History.query.distinct('action').order_by('action').all()]
+    form.action.choices = [(h.action, h.action) for h in db.session.query(History.action).distinct().order_by(History.action)]
     form.action.choices.insert(0, ('all', 'all'))
-    form.item_type.choices = [(h.item_type, h.item_type) for h in History.query.distinct('item_type').order_by('item_type').all()]
+    form.item_type.choices = [(h.item_type, h.item_type) for h in db.session.query(History.item_type).distinct().order_by(History.item_type)]
     form.item_type.choices.insert(0, ('all', 'all'))
     form.userid.choices = [(h.id, h.username) for h in User.query.order_by('username').all()]
     form.userid.choices.insert(0, (0, 'all'))
@@ -439,8 +440,6 @@ def history(page=1):
         form.item_type.data = session.get('item_type', None)
         form.userid.data = session.get('userid', None)
 
-    sort = request.args.get('sort', 'date')
-    reverse = (request.args.get('direction', 'desc') == 'asc')
     items = History.query
     if action != 'all':
         items = items.filter(History.action==action)
@@ -462,4 +461,4 @@ def history(page=1):
                            form = form,
                            table = table,
                            items=items,
-                           title='Home')
+                           title='History')

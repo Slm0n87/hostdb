@@ -26,6 +26,7 @@
           <li {% if title.startswith('Home') %} class="active"{% endif %}><a href="{{ url_for('.index')    }}">hosts</a></li>
           {% if g.user.is_authenticated()%}
             <li {% if title.startswith('Add Host') %} class="active"{% endif %}><a href="{{ url_for('.new_host') }}">add host</a></li>
+            <li {% if title.startswith('History') %} class="active"{% endif %}><a href="{{ url_for('.history') }}">history</a></li>
           {% endif %}
       </ul>
       <ul class="nav navbar-nav navbar-right">
