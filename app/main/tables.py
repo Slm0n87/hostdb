@@ -14,7 +14,6 @@ class UserCol(Col):
     def td_format(self, content):
         return User.query.get(int(content)).username
 
-# Declare your table
 class HostTable(Table):
         hostname = Col('Hostname')
         domain = Col('Domain')
@@ -29,4 +28,8 @@ class HistoryTable(Table):
     action = Col('Action')
     item_type = Col('Type')
     item_name = LinkCol('Item', '.edit_host', attr_list='item_name', url_kwargs=dict(host_id='item_id'))
+    comment = MarkdownCol('Comment')
+
+class AdminTable(Table):
+    name = Col('Item')
     comment = MarkdownCol('Comment')

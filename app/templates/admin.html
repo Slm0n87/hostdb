@@ -5,11 +5,7 @@
   {{ wtf.quick_form(form, form_type='horizontal', horizontal_columns=('lg', 2, 4),) }}
  <hr>
  <h4>Already existing:</h4>
-  <ul class="list-unstyled">
- {% for item in liste %}
-  <li>{{ item.name }}</li>
- {% endfor %}
-  </ul>
+  {{ table }}
 {% endblock %}
 
 

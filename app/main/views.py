@@ -5,7 +5,7 @@ from .. import db
 from ..email import send_email
 from . import main
 from ..models import Host, Role, Stage, Domain, User, History
-from .tables import HostTable, HistoryTable
+from .tables import HostTable, HistoryTable, AdminTable
 from .forms import FilterHostForm, NewHostForm, RoleForm, FilterHistoryForm
 from .forms import DomainForm, StageForm
 import re
@@ -242,7 +242,7 @@ def add_role():
             flash('Role %s exists already!' % form.name.data, 'warning')
             return redirect(url_for('.add_role'))
         else:
-            r = Role(name=form.name.data)
+            r = Role(name=form.name.data, comment=form.comment.data)
             db.session.add(r)
             db.session.commit()
             if r.id:
@@ -257,9 +257,10 @@ def add_role():
         return redirect(url_for('.index'))
 
     roles = Role.query.order_by('name').all()
+    table = AdminTable(roles, classes=['table', 'table-striped'])
     return render_template("admin.html",
                        form = form,
-                       liste = roles,
+                       table = table,
                        title='Add role')
 
 @main.route('/add/stage', methods = ['GET', 'POST'])
@@ -272,7 +273,7 @@ def add_stage():
             flash('Stage %s exists already!' % form.name.data, 'warning')
             return redirect(url_for('.add_stage'))
         else:
-            r = Stage(name=form.name.data)
+            r = Stage(name=form.name.data, comment=form.comment.data)
             db.session.add(r)
             db.session.commit()
             if r.id:
@@ -287,9 +288,10 @@ def add_stage():
         return redirect(url_for('.index'))
 
     stages = Stage.query.order_by('name').all()
+    table = AdminTable(stages, classes=['table', 'table-striped'])
     return render_template("admin.html",
                        form = form,
-                       liste = stages,
+                       table = table,
                        title='Add stage')
 
 @main.route('/add/domain', methods = ['GET', 'POST'])
@@ -302,7 +304,7 @@ def add_domain():
             flash('Domain %s exists already!' % form.name.data, 'warning')
             return redirect(url_for('.add_domain'))
         else:
-            r = Domain(name=form.name.data)
+            r = Domain(name=form.name.data, comment=form.comment.data)
             db.session.add(r)
             db.session.commit()
             if r.id:
@@ -317,9 +319,10 @@ def add_domain():
         return redirect(url_for('.index'))
 
     domains = Domain.query.order_by('name').all()
+    table = AdminTable(domains, classes=['table', 'table-striped'])
     return render_template("admin.html",
                        form = form,
-                       liste = domains,
+                       table = table,
                        title='Add domain')
 
 @main.route('/register' , methods=['GET','POST'])
