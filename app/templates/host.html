@@ -25,7 +25,9 @@
   <input class="btn btn-info" id="submit" name="submit" type="submit" value="Cancel" onClick='history.back();return false;'>
 </form>
 <hr>
+ {% if title == 'Change Host' %}
 <h3>History</h3>
 {{ table }}
+ {% endif %}
 {% endblock %}
 

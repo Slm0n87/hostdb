@@ -146,7 +146,7 @@ def new_host(clone_from=None):
         form.role.data = host.role_id
         form.stage.data = host.stage_id
         form.domain.data = host.domain_id
-        form.comment.data = host.comment
+        form.comment.data = ''
 
     return render_template("host.html",
                        form = form,
@@ -197,7 +197,7 @@ def edit_host(host_id):
         form.role.data = host.role_id
         form.stage.data = host.stage_id
         form.domain.data = host.domain_id
-        form.comment.data = host.comment
+        form.comment.data = ''
 
         # metadata
         by = User.query.get(host.modified_by).username
