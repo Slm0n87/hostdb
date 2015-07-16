@@ -391,6 +391,7 @@ def before_request():
 
 
 @main.route('/history', methods = ['GET', 'POST'])
+@main.route('/history/<int:page>', methods = ['GET', 'POST'])
 @login_required
 def history(page=1):
     form = FilterHistoryForm()
@@ -454,7 +455,7 @@ def history(page=1):
         items = items.filter(History.item_name.like(item_name))
         session['item_name'] = item_name
     items = items.order_by('date desc').paginate(page,
-                                                 current_app.config['HOSTS_PER_PAGE'],
+                                                 15,
                                                  False)
     table = HistoryTable(items.items, classes=['table', 'table-striped'])
     return render_template("history.html",

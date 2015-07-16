@@ -16,7 +16,7 @@
 {{ table }}
 
 <div class="text-center">
-    {% if items.has_prev %}<a href="{{ url_for('.index', page=items.prev_num) }}"><span class="glyphicon glyphicon-backward"></span></a>&nbsp;{% endif %}
-    {% if items.has_next %}<a href="{{ url_for('.index', page=items.next_num) }}"><span class="glyphicon glyphicon-forward"></span></a>{% endif %}
+    {% if items.has_prev %}<a href="{{ url_for('.history', page=items.prev_num) }}"><span class="glyphicon glyphicon-backward"></span></a>&nbsp;{% endif %}
+    {% if items.has_next %}<a href="{{ url_for('.history', page=items.next_num) }}"><span class="glyphicon glyphicon-forward"></span></a>{% endif %}
 </div>
 {% endblock %}

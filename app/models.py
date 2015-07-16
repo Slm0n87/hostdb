@@ -114,6 +114,11 @@ class User(db.Model):
     registered_on = db.Column('registered_on' , db.DateTime)
     confirmed = db.Column(db.Boolean, default=False)
     activated = db.Column(db.Boolean, default=False)
+    #hosts = db.relationship('Host', backref='creator', lazy='dynamic')
+    #domains = db.relationship('Domain', backref='creator', lazy='dynamic')
+    #stages = db.relationship('Stage', backref='creator', lazy='dynamic')
+    #roles = db.relationship('Role', backref='creator', lazy='dynamic')
+    events = db.relationship('History', backref='creator', lazy='dynamic')
 
     def __init__(self, username, password, email):
         self.username = username
