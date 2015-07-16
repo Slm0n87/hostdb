@@ -1,4 +1,13 @@
-from flask_table import Table, Col, LinkCol
+from flask_table import Table, Col, LinkCol, DatetimeCol
+import markdown
+from flask import Markup
+import re
+
+class MarkdownCol(Col):
+    def td_format(self, content):
+        # replace http:// with proper markdown link if not already markdown
+        content = re.sub(r'(?<!\]\()(https?://\S+)', r'[\1](\1)', content)
+        return Markup(markdown.markdown(content))
 
 # Declare your table
 class HostTable(Table):
@@ -10,7 +19,9 @@ class HostTable(Table):
         delete = LinkCol('Delete', '.delete_host', url_kwargs=dict(host_id='id'))
 
 class HistoryTable(Table):
-        item_name = Col('Item')
-        item_type = Col('Type')
-        action = Col('Action')
-        userid = Col('User')
+    date = DatetimeCol('Date')
+    userid = Col('User')
+    action = Col('Action')
+    item_type = Col('Type')
+    item_name = Col('Item')
+    comment = MarkdownCol('Comment')

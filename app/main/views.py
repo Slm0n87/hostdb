@@ -422,10 +422,10 @@ def history(page=1):
                 session['item_name'] += '%'
         # 'Reset' clicked - reset all fields everywhere
         else:
-            session['action'] = None
+            session['action'] = 'all'
             session['item_name'] = None
-            session['item_type'] = None
-            session['userid'] = 0
+            session['item_type'] = 'all'
+            session['userid'] = None
             action = None
             item_name = None
             item_type = None
@@ -439,6 +439,8 @@ def history(page=1):
         form.item_type.data = session.get('item_type', None)
         form.userid.data = session.get('userid', None)
 
+    sort = request.args.get('sort', 'date')
+    reverse = (request.args.get('direction', 'desc') == 'asc')
     items = History.query
     if action != 'all':
         items = items.filter(History.action==action)
@@ -453,7 +455,8 @@ def history(page=1):
         items = items.filter(History.item_name.like(item_name))
         session['item_name'] = item_name
     items = items.order_by('date desc').paginate(page,
-                                                    current_app.config['HOSTS_PER_PAGE'], False)
+                                                 current_app.config['HOSTS_PER_PAGE'],
+                                                 False)
     table = HistoryTable(items.items, classes=['table', 'table-striped'])
     return render_template("history.html",
                            form = form,
