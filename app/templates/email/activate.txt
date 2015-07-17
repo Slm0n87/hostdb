@@ -6,4 +6,4 @@ To activate the account please click on the following link:
 {{ url_for('main.activate', token=token, _external=True) }}
 
 Sincerely,
-The DIY Admin Team
+The HostDB Admin Team

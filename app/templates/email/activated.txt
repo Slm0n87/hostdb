@@ -1,10 +1,10 @@
 Dear {{ user.username }},
 
-Welcome to DIY HostDB!
+Welcome to HostDB!
 
 Your account has been acitvated now and you should be able
 to login with your credentials into
 {{ url_for('main.login', _external=True) }}
 
 Sincerely,
-The DIY Admin Team
+The HostDB Admin Team

@@ -4,16 +4,15 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class Config:
     HOSTS_PER_PAGE = 20
     WTF_CSRF_ENABLED = True
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'adfrgs tzrtrwtrwwtzrwt rwwz wrtzw43565476 $%&/3556'
+    SECRET_KEY = os.environ.get('SECRET_KEY') or '5b6e4e276129488ba5fff55310960742'
     SSL_DISABLE = True
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     SQLALCHEMY_RECORD_QUERIES = True
-    #MAIL_SERVER = 'mxintern.schlund.de'
     MAIL_SERVER = 'localhost'
     MAIL_PORT = 25
-    MAIL_SUBJECT_PREFIX = '[DIY HostDB]'
-    MAIL_SENDER = 'Diy Admin <diyadmin@1und1.de>'
-    MAIL_ADMIN = 'simon.stier@1und1.de'
+    MAIL_SUBJECT_PREFIX = '[HostDB]'
+    MAIL_SENDER = 'HostDB Admin <hostdb@example.com>'
+    MAIL_ADMIN = 'hostdb-admin@example.com'
     #ADMIN = os.environ.get('FLASKY_ADMIN')
     TIMEZONE = 'Europe/Berlin'
 
@@ -39,7 +38,7 @@ class TestingConfig(Config):
 
 class ProductionConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'postgresql://hostdb:fnordFNORD@localhost:5432/hostdb'
+    SQLALCHEMY_DATABASE_URI = 'postgresql://hostdb:password@localhost:5432/hostdb'
 
     #@classmethod
     #def init_app(cls, app):

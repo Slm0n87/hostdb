@@ -1,9 +1,9 @@
 Dear {{ user.username }},
 
-Welcome to DIY HostDB!
+Welcome to HostDB!
 
 To confirm your account please click on the following link:
 {{ url_for('main.confirm', token=token, _external=True) }}
 Sincerely,
-The DIY Admin Team
+The HostDB Admin Team
 Note: replies to this email address are not monitored.
